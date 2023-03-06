@@ -11,6 +11,7 @@ error NftMarketplace__notApprovedForMarketplace();
 error NftMarketplace__alreadyListed(address nftAddress, uint256 tokenId);
 error NftMarketplace__notOwner();
 error NftMarketplace__notListed(address nftAddress, uint256 tokenId);
+
 error NftMarketplace__priceNotmet(
     address nftAddress,
     uint256 tokenId,
@@ -41,7 +42,7 @@ contract NftMarketplace is ReentrancyGuard {
     }
     modifier isListed(address _nftAddress, uint256 _tokenId) {
         Listing memory listing = s_listing[_nftAddress][_tokenId];
-        if (listing.price < 0) {
+        if (listing.price <= 0) {
             revert NftMarketplace__notListed(_nftAddress, _tokenId);
         }
         _;
@@ -108,29 +109,28 @@ contract NftMarketplace is ReentrancyGuard {
         uint256 _tokenId
     ) external payable isListed(_nftAddress, _tokenId) nonReentrant {
         Listing memory listedItems = s_listing[_nftAddress][_tokenId];
+
         if (msg.value < listedItems.price) {
             revert NftMarketplace__priceNotmet(
                 _nftAddress,
                 _tokenId,
                 listedItems.price
             );
-            // we dont sent the money directly to user
-            // we let them to withdraw for themselfs
-            s_proceeds[listedItems.seller] += msg.value;
-
-            delete (s_listing[_nftAddress][_tokenId]);
-            IERC721(_nftAddress).safeTransferFrom(
-                listedItems.seller,
-                msg.sender,
-                _tokenId
-            );
-            emit NftBought(
-                msg.sender,
-                _nftAddress,
-                _tokenId,
-                listedItems.price
-            );
         }
+        //
+        //  require(msg.value > listedItems.price, "gi de selay");
+
+        // we dont sent the money directly to user
+        // we let them to withdraw for themselfs
+        s_proceeds[listedItems.seller] += msg.value;
+
+        delete (s_listing[_nftAddress][_tokenId]);
+        IERC721(_nftAddress).safeTransferFrom(
+            listedItems.seller,
+            msg.sender,
+            _tokenId
+        );
+        emit NftBought(msg.sender, _nftAddress, _tokenId, listedItems.price);
     }
 
     function cancelItem(
