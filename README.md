@@ -1,4 +1,4 @@
-_A decentralized NFT marketplace_
+# A decentralized NFT marketplace
 
 -   listing nft
 -   buy item
@@ -8,9 +8,14 @@ _A decentralized NFT marketplace_
 
 ---
 
-**Deploy**
-**Testing**
+## Deploy
+
+## Testing
 
 -   first we need a minting contract to mint some NFTs to use on NftMarketplace contract
 -   using 2 contract simpleNFT01 and simpleNFT02
 -   just using a fix IPFS image to test the NFtMarketplace contract
+
+## Scripts
+
+-   01\_ mint and listing
